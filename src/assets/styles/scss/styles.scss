@@ -1,0 +1,13 @@
+
+@import '../scss/fonts';
+@import '../scss/vars';
+
+@import '../scss/pages/home';
+
+html, body, #root {
+	height: 100%;
+}
+
+body {
+	font-family: 'CorporateS';
+}
