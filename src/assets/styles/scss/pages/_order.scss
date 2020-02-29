@@ -1,0 +1,138 @@
+.order-container {
+    padding: 3rem 2rem 2rem 2rem;
+    text-align: center;
+    height: 100%;
+}
+
+.order-list {
+    max-width: 50rem;
+    margin: 0 auto;
+    border: 1px solid #E74B3C;
+    margin-bottom: 5rem;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+    thead th {
+        border-bottom: 2px solid #E74B3C;
+        background-color: #E74B3C;
+        color: #FFF;
+    }
+
+    td, th {
+        border-top: 1px solid #E74B3C;
+        vertical-align: middle;
+    }
+}
+
+@media (max-width: 420px) {
+    .order-list {
+        font-size: 0.7rem;
+
+        th:first-child {
+            width: 6rem;
+        }
+    }
+}
+
+.order-remove {
+    font-size: 2rem !important;
+    cursor: pointer !important;
+    color: #E74B3C;
+}
+
+.order-add {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    right: 3rem;
+    bottom: 3rem;
+    position: fixed;
+    outline: none;
+    width: 4rem;
+    height: 4rem;
+    line-height: 4rem;
+    text-align: center;
+    color: #FFF;
+    background-color: #E74B3C;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.order-queue {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    left: 3rem;
+    bottom: 3rem;
+    position: fixed;
+    outline: none;
+    width: 4rem;
+    height: 4rem;
+    line-height: 4rem;
+    text-align: center;
+    color: #FFF;
+    background-color: #E74B3C;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+
+.order-category-wrap {
+    overflow-x: auto;
+}
+
+.order-category-block {
+
+}
+
+.order-modal-category-wrap {
+
+    max-width: 70rem !important;
+
+    .modal-content {
+        width: 100% !important;
+    }
+}
+
+.order-category-block {
+    display: inline-block;
+    background-color: #E74B3C;
+    color: #ffffff;
+    padding: 0.5rem;
+    cursor: pointer;
+    margin: 0.2rem;
+    border-radius: 0.5rem;
+}
+
+.order-category-block.active {
+    background-color: #2ecc71;
+}
+
+@media (max-width: 420px)
+{
+    .order-category-block {
+        font-size: 0.7rem;
+    }
+}
+
+.order-category-wrap {
+    width: 100%;
+    text-align: left;
+}
+
+
+.order-btn-confirm {
+    @extend %btn-main;
+    display: inline-block;
+    max-width: 8rem;
+    margin: 5rem 0.5rem;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.order-empty {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 1.5rem;
+    color: #E74B3C;
+}
+
+.order-input-input {
+    width: 100%;
+    max-width: 50rem;
+    margin: 1rem 0 !important; 
+}

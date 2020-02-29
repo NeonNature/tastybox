@@ -1,0 +1,99 @@
+.branch-label-country {
+    background: #FFF;
+}
+
+.branch-header-name {
+    width: 50rem;
+}
+
+.branch-input-input {
+    text-align: left;
+    min-width: 20rem;
+    max-width: 50rem;
+    margin-left: 1rem; 
+}
+
+.branch-container {
+    padding: 3rem 2rem 2rem 2rem;
+    text-align: center;
+    height: 100%;
+}
+
+.branch-btn-confirm {
+    @extend %btn-main;
+    display: inline-block;
+    max-width: 8rem;
+    margin: 5rem 0.5rem;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.branch-modal-category-wrap {
+
+    max-width: 70rem !important;
+
+    .modal-content {
+        width: 100% !important;
+    }
+}
+
+.branch-add {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    right: 3rem;
+    bottom: 3rem;
+    position: fixed;
+    outline: none;
+    width: 4rem;
+    height: 4rem;
+    line-height: 4rem;
+    text-align: center;
+    color: #FFF;
+    background-color: #E74B3C;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.branch-block {
+    display: block;
+    border: 0.2rem solid #E74B3C;
+    margin: 0.2rem;
+    width: 100%;
+    padding: 1rem;
+}
+
+.branch-list {
+    max-width: 50rem;
+    margin: 0 auto;
+    border: 1px solid #E74B3C;
+    margin-bottom: 5rem;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+    thead th {
+        border-bottom: 2px solid #E74B3C;
+        background-color: #E74B3C;
+        color: #FFF;
+    }
+
+    td, th {
+        border-top: 1px solid #E74B3C;
+        vertical-align: middle;
+    }
+
+    tr {
+        line-height: 3rem;
+    }
+}
+
+.branch-empty {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 1.5rem;
+    color: #E74B3C;
+}
+
+.branch-icon {
+    font-size: 2rem !important;
+    cursor: pointer !important;
+    color: #E74B3C;
+    display: inline-block;
+    transition: 300ms ease all;
+}

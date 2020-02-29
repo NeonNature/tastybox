@@ -1,0 +1,28 @@
+.queue-container {
+    padding: 3rem 2rem 2rem 2rem;
+    text-align: center;
+    height: 100%;
+    background-color: #E74B3C;
+}
+
+.queue-no {
+    font-size: 100pt;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px #000000;;
+
+    position: relative;
+    top: 40%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.queue-no.true {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink{
+    0%{     opacity: 1    }
+    50%{   opacity: 0    }
+    100%{   opacity: 1    }
+}

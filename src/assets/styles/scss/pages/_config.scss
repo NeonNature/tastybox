@@ -1,0 +1,48 @@
+.admin-label-country {
+    background: #FFF;
+}
+
+.admin-input-input {
+    width: 100%;
+    max-width: 50rem;
+    margin: 1rem 0 !important; 
+}
+
+.admin-container {
+    padding: 3rem 2rem 2rem 2rem;
+    text-align: center;
+    height: 100%;
+}
+
+.admin-btn-confirm {
+    @extend %btn-main;
+    display: inline-block;
+    max-width: 8rem;
+    margin: 5rem 0.5rem;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.admin-modal-category-wrap {
+
+    max-width: 70rem !important;
+
+    .modal-content {
+        width: 100% !important;
+    }
+}
+
+.admin-add {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    right: 3rem;
+    bottom: 3rem;
+    position: fixed;
+    outline: none;
+    width: 4rem;
+    height: 4rem;
+    line-height: 4rem;
+    text-align: center;
+    color: #FFF;
+    background-color: #E74B3C;
+    border-radius: 50%;
+    cursor: pointer;
+}
