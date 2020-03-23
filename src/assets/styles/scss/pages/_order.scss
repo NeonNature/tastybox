@@ -7,18 +7,18 @@
 .order-list {
     max-width: 50rem;
     margin: 0 auto;
-    border: 1px solid #E74B3C;
+    border: 1px solid $themeColor;
     margin-bottom: 5rem;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 
     thead th {
-        border-bottom: 2px solid #E74B3C;
-        background-color: #E74B3C;
+        border-bottom: 2px solid $themeColor;
+        background-color: $themeColor;
         color: #FFF;
     }
 
     td, th {
-        border-top: 1px solid #E74B3C;
+        border-top: 1px solid $themeColor;
         vertical-align: middle;
     }
 }
@@ -36,7 +36,7 @@
 .order-remove {
     font-size: 2rem !important;
     cursor: pointer !important;
-    color: #E74B3C;
+    color: $themeColor;
 }
 
 .order-add {
@@ -50,7 +50,7 @@
     line-height: 4rem;
     text-align: center;
     color: #FFF;
-    background-color: #E74B3C;
+    background-color: $themeColor;
     border-radius: 50%;
     cursor: pointer;
 }
@@ -66,7 +66,7 @@
     line-height: 4rem;
     text-align: center;
     color: #FFF;
-    background-color: #E74B3C;
+    background-color: $themeColor;
     border-radius: 50%;
     cursor: pointer;
 }
@@ -91,7 +91,7 @@
 
 .order-category-block {
     display: inline-block;
-    background-color: #E74B3C;
+    background-color: $themeColor;
     color: #ffffff;
     padding: 0.5rem;
     cursor: pointer;
@@ -128,7 +128,7 @@
     display: inline-block;
     vertical-align: middle;
     font-size: 1.5rem;
-    color: #E74B3C;
+    color: $themeColor;
 }
 
 .order-input-input {

@@ -16,13 +16,42 @@ require('firebase/auth');
 class QueueDisplay extends Component {
 
     state = {
-        activeQueue: ''
+        activeQueue: '',
+        clicked: false
     }
 
     componentDidMount() {
+        // if (localStorage.getItem('role') !== 'admin') {
+        //     this.props.history.push('/')
+        //     return;
+        // }
+
+        const state = this.state;
+
+        let storageInfo = JSON.parse(localStorage.getItem('info')),
+            branch = localStorage.getItem('branch');
+
         this.setState({
-            activeQueue: 1
+            displayName: storageInfo.name
         })
+
+        // if (storageInfo === null || adminInfo === null) {
+        //     this.props.history.push('/')
+        //     return;
+        // }
+
+        this.props.firestore.collection(storageInfo.id).doc(branch).onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+
+                this.setState({
+                    activeQueue: data.queue
+                },
+                () => {
+                    this.ringStart();
+                })
+            }
+        });
 
     }
 
@@ -41,14 +70,23 @@ class QueueDisplay extends Component {
         })
     }
 
+    initiate = () => {
+        this.setState({
+            clicked: true
+        },
+        () => {
+            this.ringStart();
+        })
+    }
+
     render() {
         const state = this.state;
 
         return (
             <>
-                <div className="queue-container" onClick={this.ringStart}>
+                <div className="queue-container" onClick={this.initiate}>
                     <div className={"queue-no " +state.flash}>
-                        {state.activeQueue}
+                        {state.clicked ? state.activeQueue : state.displayName}
                     </div>
                 </div>
                 <audio id="queue-sound">

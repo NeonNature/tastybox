@@ -37,13 +37,13 @@
 }
 
 .shared-modal-header {
-    border-bottom: 0.125rem solid #E74B3C;
+    border-bottom: 0.125rem solid $themeColor;
     text-align: center;
 }
 
 .shared-modal-close {
     font-size: 2rem;
-    color: #E74B3C;
+    color: $themeColor;
     float: right;
     padding-right: 1rem;
     cursor: pointer;
@@ -68,5 +68,5 @@
 }
 
 .shared-link-wrapper {
-    color: #E74B3C !important;
+    color: $themeColor !important;
 }

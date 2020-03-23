@@ -3,7 +3,7 @@
 }
 
 .branch-header-name {
-    width: 50rem;
+    // max-width: 5rem;
 }
 
 .branch-input-input {
@@ -47,34 +47,36 @@
     line-height: 4rem;
     text-align: center;
     color: #FFF;
-    background-color: #E74B3C;
+    background-color: $themeColor;
     border-radius: 50%;
     cursor: pointer;
 }
 
 .branch-block {
     display: block;
-    border: 0.2rem solid #E74B3C;
+    border: 0.2rem solid $themeColor;
     margin: 0.2rem;
     width: 100%;
     padding: 1rem;
 }
 
 .branch-list {
-    max-width: 50rem;
+    // max-width: 50rem;
+    width: 100%;
     margin: 0 auto;
-    border: 1px solid #E74B3C;
+    border: 1px solid $themeColor;
     margin-bottom: 5rem;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    // word-break: break-all;
 
     thead th {
-        border-bottom: 2px solid #E74B3C;
-        background-color: #E74B3C;
+        border-bottom: 2px solid $themeColor;
+        background-color: $themeColor;
         color: #FFF;
     }
 
     td, th {
-        border-top: 1px solid #E74B3C;
+        border-top: 1px solid $themeColor;
         vertical-align: middle;
     }
 
@@ -87,13 +89,13 @@
     display: inline-block;
     vertical-align: middle;
     font-size: 1.5rem;
-    color: #E74B3C;
+    color: $themeColor;
 }
 
 .branch-icon {
     font-size: 2rem !important;
     cursor: pointer !important;
-    color: #E74B3C;
+    color: $themeColor;
     display: inline-block;
     transition: 300ms ease all;
 }

@@ -18,6 +18,7 @@ class Register extends Component {
         confirm: '',
         name: '',
         country: '',
+        currency: '',
 
         modal_invalid: false,
         error: '',
@@ -106,7 +107,8 @@ class Register extends Component {
                                     country: state.country,
                                     currency: state.currency,
                                     id: state.id,
-                                    name: state.name
+                                    name: state.name,
+                                    branchList: []
                                 }).then(() => {
                                     this.toggleSuccessModal();
                                 }).catch((e) => {

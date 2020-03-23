@@ -28,7 +28,7 @@ class Order extends Component {
         activeCategory: 1,
         categoryList: [],
         orderId: '',
-        currency: 'MMK',
+        currency: '',
         masterCategoryList: [
             {
                 categoryID: 1,
@@ -39,32 +39,7 @@ class Order extends Component {
                 categoryName: 'Ice Creams'
             }
         ],
-        masterRecipeList: [
-            {
-                recipeID: 1,
-                recipeName: 'Hot Chocolate',
-                price: 3000,
-                categoryID: 1
-            },
-            {
-                recipeID: 2,
-                recipeName: 'Strawberry Shake',
-                price: 3500,
-                categoryID: 1
-            },
-            {
-                recipeID: 3,
-                recipeName: 'Chocolate Ice Creams',
-                price: 1000,
-                categoryID: 2
-            },
-            {
-                recipeID: 4,
-                recipeName: 'Strawberry Ice Creams',
-                price: 1500,
-                categoryID: 2
-            }
-        ],
+        menuList: [],
 
         orderList: [],
         addList: [],
@@ -83,20 +58,30 @@ class Order extends Component {
         let categoryList = [], 
             addList = [];
 
-        this.state.masterCategoryList.map((i, idx) => {
-            categoryList.push({
-                categoryID: i.categoryID,
-                categoryName: i.categoryName
-            })
+        // if (localStorage.getItem('role') !== 'admin') {
+        //     this.props.history.push('/')
+        //     return;
+        // }
 
-            if (idx === 0) {
+        const state = this.state;
+
+        let storageInfo = JSON.parse(localStorage.getItem('info')),
+            branch = localStorage.getItem('branch');
+            // adminInfo = JSON.parse(localStorage.getItem('admin'));
+
+        // if (storageInfo === null || adminInfo === null) {
+        //     this.props.history.push('/')
+        //     return;
+        // }
+
+        this.props.firestore.collection(storageInfo.id).doc(branch).onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+
                 this.setState({
-                    activeCategory: i.categoryID
-                })
-                this.state.masterRecipeList.map((o, odx) => {
-                    if (o.categoryID === i.categoryID) {
-                        addList.push(o)
-                    }
+                    menuList: data.menuList,
+                    addList: data.menuList,
+                    currency: storageInfo.currency
                 })
             }
         });
@@ -174,8 +159,8 @@ class Order extends Component {
 
         this.state.orderList.map((i) => {
 
-            console.log(i.recipeID, id)
-            if (i.recipeID !== id) {
+            console.log(i.menuId, id)
+            if (i.menuId !== id) {
                 val.push(i)
             }
         })
@@ -189,8 +174,8 @@ class Order extends Component {
         let val = this.state.orderList;
 
         val.push({
-            recipeID: i.recipeID,
-            recipeName: i.recipeName,
+            menuId: i.menuId,
+            menuName: i.menuName,
             qty: 1,
             price: i.price
         });
@@ -211,7 +196,7 @@ class Order extends Component {
                 this.setState({
                     activeCategory: val.categoryID
                 })
-                this.state.masterRecipeList.map((o, odx) => {
+                this.state.menuList.map((o, odx) => {
                     if (o.categoryID === i.categoryID) {
                         addList.push(o)
                     }
@@ -233,7 +218,29 @@ class Order extends Component {
     }
 
     confirmQueue = () => {
-        this.toggleQueueModal();
+
+        let storageInfo = JSON.parse(localStorage.getItem('info')),
+            branch = localStorage.getItem('branch');
+        const state = this.state;
+
+        this.props.firestore
+            .collection(storageInfo.id).doc(branch)
+            .set({
+                queue: state.queueInput
+            }, {merge: true}).then(() => {
+                this.toggleQueueModal();
+                this.setState({
+                    error: 'Queue updated successfully',
+                    queueInput: ''
+                });
+                this.toggleInvalidModal();
+            }).catch((e) => {
+                this.setState({
+                    error: 'An error has encountered! Please retry later!'
+                });
+                this.toggleInvalidModal();
+                console.log(e);
+            });
     }
 
     render() {
@@ -261,12 +268,12 @@ class Order extends Component {
                             {
                                 state.orderList.map((i, idx) =>
                                     <tr key={idx}>
-                                        <td>{i.recipeName}</td>
+                                        <td>{i.menuName}</td>
                                         <td>{i.price + " " + state.currency}</td>
                                         <td>{i.qty}</td>
                                         <td>{(i.price * i.qty) + " " + state.currency}</td>
                                         <td>
-                                            <RemoveCircleIcon className="order-remove" onClick={() => this.removeList(i.recipeID)} />
+                                            <RemoveCircleIcon className="order-remove" onClick={() => this.removeList(i.menuId)} />
                                         </td>
                                     </tr>
                                 )
@@ -336,7 +343,7 @@ class Order extends Component {
                             <span>&#10005;</span>
                         </div>
                         <div className="shared-modal-content">
-                            <div className="order-category-wrap">
+                            {/* <div className="order-category-wrap">
                                 {
                                     state.categoryList.map ((i, idx) => 
                                     <div onClick={ state.activeCategory === i.categoryID ? null : () => this.selectCategory(i)} key={idx} className={ state.activeCategory === i.categoryID ? "order-category-block active": "order-category-block"}>
@@ -345,8 +352,8 @@ class Order extends Component {
                                     )
                                 }
                                 
-                            </div>
-                            <hr />
+                            </div> */}
+                            {/* <hr /> */}
 
                                 {
                                     state.addList.length ?
@@ -362,7 +369,7 @@ class Order extends Component {
                                         {
                                             state.addList.map((i, idx) =>
                                                 <tr key={idx}>
-                                                    <td>{i.recipeName}</td>
+                                                    <td>{i.menuName}</td>
                                                     <td>{i.price + " " + state.currency}</td>
                                                     <td>
                                                         <AddCircleIcon className="order-remove" onClick={() => this.addList(i)} />
@@ -372,7 +379,7 @@ class Order extends Component {
                                         }
 
                                     </tbody>
-                                </table> : <div className="order-empty">Category is currently empty</div>
+                                </table> : <div className="order-empty">Menu is currently empty</div>
                                 }
 {/* 
 

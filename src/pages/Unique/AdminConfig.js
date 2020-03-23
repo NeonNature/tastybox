@@ -37,12 +37,18 @@ class AdminConfig extends Component {
     componentDidMount() {
         if (localStorage.getItem('role') !== 'admin') {
             this.props.history.push('/')
+            return;
         }
 
         const state = this.state;
 
         let storageInfo = JSON.parse(localStorage.getItem('info')),
             adminInfo = JSON.parse(localStorage.getItem('admin'));
+
+        if (storageInfo === null || adminInfo === null) {
+            this.props.history.push('/')
+            return;
+        }
 
         this.props.firestore
             .collection(storageInfo.id).doc('info')
@@ -189,32 +195,33 @@ class AdminConfig extends Component {
 
 
         if (state.password && state.confirm) {
-            this.setState({
-                error: 'Passwords do not match!'
-            });
-            this.toggleInvalidModal();
-            return;
-        }
-        else {
-
-            this.props.firestore
-                .collection(state.id).doc('admin')
-                .set({
-                    password: passwordHash.generate(state.password)
-                }).catch((e) => {
-                    this.setState({
-                        error: 'An error has encountered! Please retry later!'
-                    });
-                    this.toggleInvalidModal();
-                    console.log(e);
+            if (state.password !== state.confirm) {
+                this.setState({
+                    error: 'Passwords do not match!'
                 });
+                this.toggleInvalidModal();
+                return;
             }
+            else {
+                this.props.firestore
+                    .collection(state.id).doc('admin')
+                    .set({
+                        password: passwordHash.generate(state.password)
+                    }, {merge: true}).catch((e) => {
+                        this.setState({
+                            error: 'An error has encountered! Please retry later!'
+                        });
+                        this.toggleInvalidModal();
+                        console.log(e);
+                    });
+            }
+        }
 
         this.props.firestore
                         .collection(state.id).doc('admin')
                         .set({
                             email: state.email
-                        }).then(() => {
+                        }, {merge: true}).then(() => {
                             this.props.firestore
                                 .collection(state.id).doc('info')
                                 .set({
@@ -252,7 +259,7 @@ class AdminConfig extends Component {
 
             return (
                 <>
-                    <Header back activeRoute="Admin Config" />
+                    <Header logout branch activeRoute="Admin Config" />
                     <div className="admin-container">
 
                         <TextField
@@ -283,6 +290,7 @@ class AdminConfig extends Component {
                             value={state.password}
                             onChange={this.handleChange}
                             color="secondary"
+                            autoComplete="new-password"
                             placeholder="Leave blank if unchanged"
                             name="password"
                             variant="outlined"
@@ -688,12 +696,6 @@ class AdminConfig extends Component {
                                         onClick={this.confirmUpdate}
                                     >
                                         Confirm
-                            </div>
-                                    <div
-                                        className="shared-modal-btn-secondary"
-                                        onClick={this.toggleUpdateModal}
-                                    >
-                                        Cancel
                             </div>
                                 </div>
                             </div>

@@ -109,7 +109,7 @@ class Home extends Component {
             if (
                 !state.id ||
                 !state.branch ||
-                !state.name ||
+                !state.username ||
                 !state.password
             ) {
                 this.setState({
@@ -120,11 +120,35 @@ class Home extends Component {
             }
 
             this.props.firestore
-                .collection(state.id).doc('admin')
+                .collection(state.id).doc('branch_'+state.branch)
                 .get()
                 .then((res) => {
                     if (res.exists) {
+                        const data = res.data();
 
+                        data.accountList.map((i) => {
+                            if (state.username === i.accountName && state.password === i.password) {
+                                this.props.firestore
+                                .collection(state.id).doc('info')
+                                .get()
+                                .then((res2) => {
+                                    const data2 = res2.data();
+
+                                    localStorage.setItem('info', JSON.stringify(data2));
+                                    localStorage.setItem('role', i.accountType);
+                                    localStorage.setItem('serviceType', data.serviceType);
+                                    localStorage.setItem('branch', 'branch_' + state.branch)
+
+                                    this.toggleSuccessModal();
+                            });
+                            } 
+                            else {
+                                this.setState({
+                                    error: 'Invalid Credentials! Please retry again!'
+                                });
+                                this.toggleInvalidModal();
+                            }
+                        })
                     }
                     else {
                         this.setState({
@@ -137,7 +161,58 @@ class Home extends Component {
     }
 
     redirectLogin = () => {
-        this.props.history.push('/config');
+        let serviceType = localStorage.getItem('serviceType'),
+        role =  localStorage.getItem('role'),
+        id = this.state.branch;
+
+        if (role === 'admin') {
+            this.props.history.push('/branch');
+        }
+        if (role === 'server') {
+            if (serviceType === '1') {
+                this.setState({
+                    error: "Sorry! Unable to redirect to a function due to the service type of the branch!"
+                })
+                this.toggleInvalidModal();
+                this.toggleSuccessModal();
+            }
+            if (serviceType === '2') {
+                this.props.history.push('/lobby/'+id);
+            }
+            if (serviceType === '3') {
+                this.setState({
+                    error: "Sorry! Unable to redirect to a function due to the service type of the branch!"
+                })
+                this.toggleInvalidModal();
+                this.toggleSuccessModal();
+            }
+            if (serviceType === '4') {
+                this.props.history.push('/lobby/'+id);
+            }
+            if (serviceType === '5') {
+                this.props.history.push('/lobby/'+id);
+            }
+        }
+        if (role === 'clerk') {
+            if (serviceType === '1') {
+                this.props.history.push('/order/new');
+            }
+            if (serviceType === '2') {
+                this.props.history.push('/lobby/'+id);
+            }
+            if (serviceType === '3') {
+                this.props.history.push('/order/new');
+            }
+            if (serviceType === '4') {
+                this.props.history.push('/lobby/'+id);
+            }
+            if (serviceType === '5') {
+                this.props.history.push('/lobby/'+id);
+            }
+        }
+        if (role === 'manager') {
+            this.props.history.push('/record/'+id);
+        }
     }
 
     render() {

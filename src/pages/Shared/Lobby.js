@@ -22,47 +22,32 @@ class Lobby extends Component {
         
         modal_invalid: false,
         error: '',
-        seatList: [
-            {
-                seatId: 1,
-                free: false
-            },
-            {
-                seatId: 1,
-                free: false
-            },
-            {
-                seatId: 1,
-                free: false
-            },
-            {
-                seatId: 1,
-                free: false
-            },
-            {
-                seatId: 1,
-                free: false
-            },
-            {
-                seatId: 1,
-                free: false
-            },
-            {
-                seatId: 1,
-                free: false
-            },
-            {
-                seatId: 1,
-                free: false
-            }
-        ]
+        seatList: []
     }
 
     componentDidMount() {
-        this.setState({
-            time: {
-                month: moment().format('MMM').toUpperCase(),
-                year: moment().format('YYYY')
+        // if (localStorage.getItem('role') !== 'admin') {
+        //     this.props.history.push('/')
+        //     return;
+        // }
+
+        const state = this.state;
+
+        let storageInfo = JSON.parse(localStorage.getItem('info')),
+            serviceType = localStorage.getItem('serviceType');
+
+        if (storageInfo === null) {
+            this.props.history.push('/')
+            return;
+        }
+
+        this.props.firestore.collection(storageInfo.id).doc('branch_'+ this.props.match.params.id).onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+
+                this.setState({
+                    seatList: data.seatList
+                })
             }
         });
     }
@@ -77,22 +62,6 @@ class Lobby extends Component {
         })
     };
 
-    register = () => {
-        const state = this.state;
-
-        this.props.firestore
-						.collection('/users').doc(state.id)
-						.set({
-                            id: state.id,
-                            email: state.email,
-                            password: passwordHash.generate(state.password),
-                            name: state.name,
-                            country: state.country
-						}).then(() => {
-                            console.log('test')
-						}).catch((err) => console.log(err));
-    }
-
     handleChange = (e) => {
         this.setState({ [e.target.name]: e.target.value });
     }
@@ -105,20 +74,48 @@ class Lobby extends Component {
         })
     }
 
+    toggleSeat = (seatId, isOccupied) => {
+        let seatList = [];
+        let storageInfo = JSON.parse(localStorage.getItem('info'));
+
+        this.state.seatList.map((i) => {
+            if (i.seatId === seatId) {
+                seatList.push({
+                    seatId: i.seatId,
+                    isOccupied: !isOccupied
+                })
+            }
+            else {
+                seatList.push(i)
+            }
+        })
+
+        this.props.firestore
+            .collection(storageInfo.id).doc('branch_' + this.props.match.params.id)
+            .set({
+                seatList
+            }, {merge: true}).catch((e) => {
+                this.setState({
+                    error: 'An error has encountered! Please retry later!'
+                });
+                this.toggleInvalidModal();
+                console.log(e);
+            });
+       
+    }
+
     render() {
         const state = this.state;
 
         return (
             <>
-            <Header />
+            <Header activeRoute="Lobby"/>
             <div className="lobby-container">
                 {
                     state.seatList.map((i, idx) => 
-                    <>
-                    <div key={idx} className={"lobby-seat " + i.free}>
+                    <div key={idx} className={ true ? "lobby-seat clickable " + !i.isOccupied : "lobby-seat " + !i.isOccupied } onClick={true ? () => this.toggleSeat(i.seatId, i.isOccupied) : null}>
                         {i.seatId}
                     </div>
-                    </>
                     )
                 }
             </div>

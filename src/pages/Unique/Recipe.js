@@ -17,7 +17,7 @@ import RestaurantIcon from '@material-ui/icons/Restaurant';
 var passwordHash = require('password-hash');
 require('firebase/auth');
 
-class Branch extends Component {
+class Menu extends Component {
 
     state = {
         modal_invalid: false,
@@ -27,13 +27,16 @@ class Branch extends Component {
 
         error: '',
 
-        branchList: [],
-        activeEdit: '',
-        addBranch: '',
+        addMenu: '',
+        addPrice: '',
+        editPrice: '',
 
         deleteInput: '',
         deleteData: {},
-        seatList: ''
+        menuList: [],
+
+        editMenu: '',
+        editName: ''
     }
 
     componentDidMount() {
@@ -52,12 +55,12 @@ class Branch extends Component {
             return;
         }
 
-        this.props.firestore.collection(storageInfo.id).doc('info').onSnapshot((doc) => {
+        this.props.firestore.collection(storageInfo.id).doc('branch_'+ this.props.match.params.id).onSnapshot((doc) => {
             if (doc.exists) {
                 const data = doc.data();
 
                 this.setState({
-                    branchList: data.branchList
+                    menuList: data.menuList
                 })
             }
         });
@@ -103,6 +106,15 @@ class Branch extends Component {
         })
     }
 
+    toggleEditModal = () => {
+        const val = this.state.modal_edit;
+
+        this.setState({
+            modal_edit: !val
+        })
+    }
+
+
     removeList = (id) => {
         let val = [];
 
@@ -125,7 +137,6 @@ class Branch extends Component {
         val.push({
             recipeID: i.recipeID,
             recipeName: i.recipeName,
-            qty: 1,
             price: i.price
         });
 
@@ -133,28 +144,6 @@ class Branch extends Component {
             orderList: val
         }, () => {
             this.toggleOrderModal();
-        })
-    }
-
-    selectCategory = (val) => {
-        let addList = [];
-
-        this.state.masterCategoryList.map((i, idx) => {
-
-            if (i.categoryID === val.categoryID) {
-                this.setState({
-                    activeCategory: val.categoryID
-                })
-                this.state.masterRecipeList.map((o, odx) => {
-                    if (o.categoryID === i.categoryID) {
-                        addList.push(o)
-                    }
-                })
-            }
-        });
-
-        this.setState({
-            addList
         })
     }
 
@@ -166,40 +155,13 @@ class Branch extends Component {
         this.setState({ [e.target.name]: e.target.value });
     }
 
-    detectEnter = (e) => {
-        if (e.key === 'Enter') {
-            this.onEndEdit();
-        }
-    }
-
-    onInitiateEdit = (i) => {
+    editMenu = (i) => {
         this.setState({
-            activeEdit: i.branchId,
-            activeName: i.branchName
+            editName: i.menuName,
+            editMenu: i.menuName,
+            editPrice: i.price
         })
-    }
-
-    onEndEdit = () => {
-        this.setState({
-            activeEdit: '',
-            activeName: ''
-        })
-    }
-
-    manageMenu = (i) => {
-        this.props.history.push('/menu/' + i.branchName);
-    }
-
-    manageAccount = (i) => {
-        this.props.history.push('/account/' + i.branchName);
-    }
-
-    manageBranch = (i) => {
-        this.props.history.push('/branch/' + i.branchName)
-    }
-
-    manageRecords = (i) => {
-        this.props.history.push('/record/' + i.branchName)
+        this.toggleEditModal();
     }
 
     beforeDelete = (i) => {
@@ -209,32 +171,86 @@ class Branch extends Component {
         })
     }
 
-    deleteBranch = () => {
+    deleteMenu = () => {
         let storageInfo = JSON.parse(localStorage.getItem('info')),
             adminInfo = JSON.parse(localStorage.getItem('admin')),
             i = this.state.deleteData;
         const state = this.state;
 
-        this.props.firestore
-                .collection(storageInfo.id).doc('branch_'+i.branchName)
-                .delete().then(() => {
+        let menuList = [];
 
-                    this.props.firestore
-                            .collection(storageInfo.id).doc('info')
-                            .update({
-                                branchList: state.branchList.filter( o => o.branchName !== i.branchName)
-                            })
-                            .then(() => {
-                               this.setState({
-                                   error: 'Branch ' + i.branchName + ' has been deleted successfully!',
-                                   deleteData: {},
-                                   deleteInput: ''
-                               }) 
-                               this.toggleInvalidModal();
-                               this.toggleDeleteModal();
-                            })
+        state.menuList.map((o) => {
+            if (i.menuName !== o.menuName) {
+                menuList.push(o)
+            }
+        })
+
+        this.props.firestore
+                .collection(storageInfo.id).doc('branch_'+this.props.match.params.id)
+                .set( {
+                    menuList: [...menuList]
+                }, { merge: true }).then(() => {
+                    this.setState({
+                        error: 'Menu ' + i.menuName + ' has been deleted successfully!',
+                        deleteData: {},
+                        deleteInput: ''
+                    }) 
+                    this.toggleInvalidModal();
+                    this.toggleDeleteModal();
 
 				}).catch((err) => console.log(err));
+    }
+
+    confirmEdit = () => {
+
+        let storageInfo = JSON.parse(localStorage.getItem('info')),
+            adminInfo = JSON.parse(localStorage.getItem('admin'));
+        const state = this.state;
+
+        let menuList = [];
+        
+        if (menuList.some( i => i['menuName'] == state.addMenu )
+        ) {
+            this.setState({
+                error: 'Menu name already exists! Please use a different name!'
+            });
+            this.toggleInvalidModal();
+            return;
+        }
+
+        state.menuList.map((i) => {
+            if (i.menuName !== state.editName) {
+                menuList.push(i)
+            }
+            else {
+                menuList.push({
+                    menuId: i.menuId,
+                    // recipeList: i.recipeList,
+                    menuName: state.editMenu,
+                    price: i.price
+                })
+            }
+        })
+
+        console.log (menuList)
+
+        this.props.firestore
+                .collection(storageInfo.id).doc('branch_'+this.props.match.params.id)
+                .set( {
+                    menuList: [...menuList]
+                }, { merge: true }).then(() => {
+                    this.setState({
+                        error: 'Menu has been updated successfully!',
+                        editMenu: '',
+                        editName: '',
+                        editPrice: ''
+                    }) 
+                    this.toggleInvalidModal();
+                    this.toggleEditModal();
+
+				}).catch((err) => console.log(err));
+
+
     }
 
     confirmAdd = () => {
@@ -244,74 +260,38 @@ class Branch extends Component {
             adminInfo = JSON.parse(localStorage.getItem('admin'));
         const state = this.state;
 
-        let branchList = state.branchList;
+        let menuList = state.menuList;
         
-        if (branchList.some( i => i['branchName'] == state.addBranch )
+        if (menuList.some( i => i['menuName'] == state.addMenu )
         ) {
             this.setState({
-                error: 'Branch name already exists! Please use a different name!'
+                error: 'Menu name already exists! Please use a different name!'
             });
             this.toggleInvalidModal();
             return;
         }
 
-        if (parseInt(state.seatList) > 50 || parseInt(state.seatList) < 1) {
-            this.setState({
-                error: 'Only a minimum of 1 and a maximum of 50 seatList are allowed.'
-            });
-            this.toggleInvalidModal();
-            return;
+        const menuObj = {
+            menuId: state.menuList.length + 1,
+            menuName: state.addMenu,
+            price: state.addPrice
         }
 
-
-
-        let seatList = []
-
-        const n = parseInt(state.seatList);
-
-        [...Array(n)].map((e, i) => {
-            seatList.push({
-                seatId: i + 1,
-                isOccupied: false
-            })
-        })
-
-        const branchObj = {
-            branchId: state.branchList.length + 1,
-            branchName: state.addBranch,
-            serviceType: "1",
-            seatList: [...seatList],
-            menuList: [],
-            accountList: [],
-            recordList: [],
-            queue: '0'
-        }
-
-        branchList.push(branchObj)
+        menuList.push(menuObj)
 
 
         this.props.firestore
-            .collection(storageInfo.id).doc('branch_' + state.addBranch)
-            .set(branchObj, {merge: true}).then(() => {
-                this.props.firestore
-                .collection(storageInfo.id).doc('info')
-                .set({
-                    branchList
-                    }, {merge: true}).then(() => {
-                        this.toggleOrderModal();
-                        this.setState({
-                            error: 'Branch added successfully',
-                            addBranch: '',
-                            seatList: ''
-                        });
-                        this.toggleInvalidModal();
-                    }).catch((e) => {
-                        this.setState({
-                            error: 'An error has encountered! Please retry later!'
-                        });
-                        this.toggleInvalidModal();
-                        console.log(e);
-                    });
+            .collection(storageInfo.id).doc('branch_' + this.props.match.params.id)
+            .set({
+                menuList
+            }, {merge: true}).then(() => {
+                this.toggleOrderModal();
+                this.setState({
+                    error: 'Menu added successfully',
+                    addMenu: '',
+                    addPrice: ''
+                });
+                this.toggleInvalidModal();
             }).catch((e) => {
                 this.setState({
                     error: 'An error has encountered! Please retry later!'
@@ -327,61 +307,32 @@ class Branch extends Component {
 
         return (
             <>
-                <Header logout admin activeRoute="Manage Branches" />
+                <Header logout branch activeRoute="Manage Category" />
                 <div className="branch-container">
                     {
-                        state.branchList.length ?
+                        state.menuList.length ?
                         <div className="table-responsive">
                             <table className="table table-hover branch-list">
                                 <thead>
                                     <tr>
                                         <th className="branch-header-name">Name</th>
-                                        <th>Account</th>
-                                        <th>Menu</th>
-                                        <th>Record</th>
+                                        <th>Price</th>
                                         <th>Edit</th>
                                         <th>Delete</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {
-                                        state.branchList.map((i, idx) =>
+                                        state.menuList.map((i, idx) =>
                                             <tr key={idx}>
                                                 <td>
-                                                    {/* {
-                                                        state.activeEdit === i.branchId ?
-                                                            <> */}
-                                                                {/* <TextField
-                                                                    type="text"
-                                                                    className="branch-input-input"
-                                                                    value={state.activeName}
-                                                                    onChange={this.handleChange}
-                                                                    color="secondary"
-                                                                    name="activeName"
-                                                                    label="Branch Name"
-                                                                    onKeyDown={this.detectEnter}
-                                                                    variant="outlined" /> */}
-                                                            {/* </>
-                                                            :
-                                                            <>
-                                                                {i.branchName}
-                                                                <EditIcon className="branch-icon ml-3" onClick={() => this.onInitiateEdit(i)} />
-                                                            </>
-
-                                                    } */}
-                                                     {i.branchName}
+                                                    {i.menuName}
                                                 </td>
                                                 <td>
-                                                    <SupervisorAccountIcon className="branch-icon" onClick={() => this.manageAccount(i)} />
+                                                    {i.price}
                                                 </td>
                                                 <td>
-                                                    <RestaurantIcon className="branch-icon" onClick={() => this.manageMenu(i)} />
-                                                </td>
-                                                <td>
-                                                    <ListAltIcon className="branch-icon" onClick={() => this.manageRecords(i)} />
-                                                </td>
-                                                <td>
-                                                    <EditIcon className="branch-icon" onClick={() => this.manageBranch(i)} />
+                                                    <EditIcon className="branch-icon" onClick={() => this.editMenu(i)} />
                                                 </td>
                                                 <td>
                                                     <RemoveCircleIcon className="branch-icon" onClick={() => this.beforeDelete(i)} />
@@ -392,7 +343,7 @@ class Branch extends Component {
 
                                 </tbody>
                             </table>
-                        </div> : <div className="branch-empty">No Branch found.</div>
+                        </div> : <div className="branch-empty">No Menu found.</div>
                     }
 
 
@@ -419,28 +370,28 @@ class Branch extends Component {
                             <TextField
                                 type="text"
                                 className="admin-input-input"
-                                value={state.addBranch}
+                                value={state.addMenu}
                                 onChange={this.handleChange}
                                 color="secondary"
-                                name="addBranch"
-                                label="Branch Name"
+                                name="addMenu"
+                                label="Menu Name"
                                 variant="outlined"
                             />
 
                             <TextField
                                 type="number"
                                 className="admin-input-input"
-                                value={state.seatList}
+                                value={state.addPrice}
                                 onChange={this.handleChange}
                                 color="secondary"
-                                name="seatList"
-                                label="Seats"
+                                name="addPrice"
+                                label="Price"
                                 variant="outlined"
                             />
 
                             <div className="shared-modal-btn-wrap">
                                 {
-                                    state.addBranch && state.seatList !== '' ? <div
+                                    state.addMenu && state.addPrice !== "" ? <div
                                         className="shared-modal-btn-main"
                                         onClick={this.confirmAdd}
                                     >
@@ -484,41 +435,6 @@ class Branch extends Component {
                     </ModalBody>
                 </Modal>
 
-
-
-                {/* Confirm Modal */}
-
-                <Modal
-                    backdropClassName={"shared-modal-backdrop"}
-                    centered
-                    isOpen={state.modal_update}
-                    toggle={this.toggleUpdateModal}
-                    className="shared-modal-container shared-modal-wrap"
-                >
-                    <ModalBody>
-                        <div className="shared-modal-close" onClick={this.toggleUpdateModal}>
-                            <span>&#10005;</span>
-                        </div>
-                        <div className="shared-modal-content">
-                            <p>Are you sure you want to update the info?</p>
-                            <div className="shared-modal-btn-wrap">
-                                <div
-                                    className="shared-modal-btn-main"
-                                    onClick={this.confirmUpdate}
-                                >
-                                    Confirm
-                            </div>
-                                <div
-                                    className="shared-modal-btn-secondary"
-                                    onClick={this.toggleUpdateModal}
-                                >
-                                    Cancel
-                            </div>
-                            </div>
-                        </div>
-                    </ModalBody>
-                </Modal>
-
                 <Modal
                     backdropClassName={"shared-modal-backdrop"}
                     centered
@@ -531,7 +447,7 @@ class Branch extends Component {
                             <span>&#10005;</span>
                         </div>
                         <div className="shared-modal-content">
-                            Please input the branch name to confirm delete.
+                            Please input the menu name to confirm delete.
                             <TextField
                                 type="text"
                                 className="admin-input-input"
@@ -539,17 +455,73 @@ class Branch extends Component {
                                 onChange={this.handleChange}
                                 color="secondary"
                                 name="deleteInput"
-                                label="Branch Name"
+                                label="Menu Name"
                                 variant="outlined"
                             />
 
                             <div className="shared-modal-btn-wrap">
                                 {
-                                    state.deleteInput === state.deleteData.branchName ? <div
+                                    state.deleteInput === state.deleteData.menuName ? <div
                                         className="shared-modal-btn-main"
-                                        onClick={this.deleteBranch}
+                                        onClick={this.deleteMenu}
                                     >
                                         Delete
+                                    </div> : ''
+                                }
+                            </div>
+                        </div>
+                    </ModalBody>
+                </Modal>
+
+
+
+                {/* Edit Modal  */}
+
+
+                <Modal
+                    backdropClassName={"shared-modal-backdrop"}
+                    centered
+                    isOpen={state.modal_edit}
+                    toggle={this.toggleEditModal}
+                    className="shared-modal-container shared-modal-wrap branch-modal-category-wrap"
+                >
+                    <ModalBody>
+                        <div className="shared-modal-close" onClick={this.toggleEditModal}>
+                            <span>&#10005;</span>
+                        </div>
+                        <div className="shared-modal-content">
+
+                            <TextField
+                                type="text"
+                                className="admin-input-input"
+                                value={state.editMenu}
+                                onChange={this.handleChange}
+                                color="secondary"
+                                name="editMenu"
+                                label="Menu Name"
+                                variant="outlined"
+                            />
+
+                            <TextField  
+                                type="number"
+                                className="admin-input-input"
+                                value={state.editPrice}
+                                onChange={this.handleChange}
+                                color="secondary"
+                                name="editPrice"
+                                label="Price"
+                                variant="outlined"
+                            />
+
+                            <div className="shared-modal-btn-wrap">
+                                {
+                                    state.editMenu || state.editPrice === ""
+                                    // && state.editMenu !== state.editName 
+                                    ? <div
+                                        className="shared-modal-btn-main"
+                                        onClick={this.confirmEdit}
+                                    >
+                                        Edit
                                     </div> : ''
                                 }
                             </div>
@@ -564,4 +536,4 @@ class Branch extends Component {
 
 
 
-export default withFirestore(Branch);
+export default withFirestore(Menu);
